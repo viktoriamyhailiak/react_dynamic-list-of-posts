@@ -26,13 +26,12 @@ export const PostDetails: React.FC<Props> = ({
     getPostComments(selectedPost.id)
       .then(result => setComments(result))
       .catch(() => setIsError(true))
-      .finally(() => setIsError(false));
+      .finally(() => setIsLoading(false));
   }, [selectedPost.id]);
 
   function handleDeletion(comment: Comment) {
     setComments(comments?.filter(x => x.id !== comment.id) || null);
-
-    deleteComment(comment.id);
+    deleteComment(comment.id).catch(() => setIsError(true));
   }
 
   return (
@@ -110,6 +109,7 @@ export const PostDetails: React.FC<Props> = ({
             selectedPost={selectedPost}
             setComments={setComments}
             comments={comments}
+            setIsError={setIsError}
           />
         )}
       </div>

@@ -29,7 +29,7 @@ export const App = () => {
       .then(result => setUsers(result))
       .catch(() => setIsError(true))
       .finally(() => setIsLoading(false));
-  }, [activeUser]);
+  }, []);
 
   function loadUserPosts(user: User) {
     setIsLoading(true);

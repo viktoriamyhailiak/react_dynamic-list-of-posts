@@ -8,12 +8,14 @@ type Props = {
   selectedPost: Post;
   setComments: React.Dispatch<React.SetStateAction<Comment[] | null>>;
   comments: Comment[] | null;
+  setIsError: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
 export const NewCommentForm: React.FC<Props> = ({
   selectedPost,
   setComments,
   comments,
+  setIsError,
 }) => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [name, setName] = useState<string>('');
@@ -25,6 +27,7 @@ export const NewCommentForm: React.FC<Props> = ({
 
   function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    setIsError(false);
     setIsLoading(true);
     let count = 0;
 
@@ -60,12 +63,14 @@ export const NewCommentForm: React.FC<Props> = ({
 
           setBody('');
         })
+        .catch(() => setIsError(true))
         .finally(() => setIsLoading(false));
     }
   }
 
   function onClear(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) {
     e.preventDefault();
+    setIsError(false);
     setIsNameError(false);
     setIsBodyError(false);
     setIsEmailError(false);
@@ -75,16 +80,19 @@ export const NewCommentForm: React.FC<Props> = ({
   }
 
   function handleNameChange(e: React.ChangeEvent<HTMLInputElement>) {
+    setIsError(false);
     setIsNameError(false);
     setName(e.target.value);
   }
 
   function handleEmailChange(e: React.ChangeEvent<HTMLInputElement>) {
+    setIsError(false);
     setIsEmailError(false);
     setEmail(e.target.value);
   }
 
   function handleTextChange(e: React.ChangeEvent<HTMLTextAreaElement>) {
+    setIsError(false);
     setIsBodyError(false);
     setBody(e.target.value);
   }
