@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Loader } from './Loader';
 import { NewCommentForm } from './NewCommentForm';
 import { Post } from '../types/Post';
@@ -19,6 +19,7 @@ export const PostDetails: React.FC<Props> = ({
   const [isError, setIsError] = useState<boolean>(false);
   const [comments, setComments] = useState<Comment[] | null>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isAddDeleteError, setIsAddDeleteError] = useState<boolean>(false);
 
   useEffect(() => {
     setIsLoading(true);
@@ -29,9 +30,17 @@ export const PostDetails: React.FC<Props> = ({
       .finally(() => setIsLoading(false));
   }, [selectedPost.id]);
 
+  const allComments = useRef(comments);
+
   function handleDeletion(comment: Comment) {
+    allComments.current = comments;
+
     setComments(comments?.filter(x => x.id !== comment.id) || null);
-    deleteComment(comment.id).catch(() => setIsError(true));
+    deleteComment(comment.id).catch(() => {
+      setComments(allComments.current);
+      setIsError(true);
+      setIsAddDeleteError(true);
+    });
   }
 
   return (
@@ -54,13 +63,27 @@ export const PostDetails: React.FC<Props> = ({
             </div>
           )}
 
+          {isAddDeleteError && (
+            <button
+              type="button"
+              className="button is-link"
+              onClick={() => {
+                setIsAddDeleteError(false);
+                setIsError(false);
+                setComments(allComments.current);
+              }}
+            >
+              Retry
+            </button>
+          )}
+
           {(!comments || comments?.length === 0) && !isError && !isLoading && (
             <p className="title is-4" data-cy="NoCommentsMessage">
               No comments yet
             </p>
           )}
 
-          {comments?.length !== 0 && comments && selectedPost && (
+          {comments?.length !== 0 && comments && selectedPost && !isError && (
             <>
               <p className="title is-4">Comments:</p>
               {comments.map(comment => (
@@ -104,12 +127,13 @@ export const PostDetails: React.FC<Props> = ({
           )}
         </div>
 
-        {isFormOpened && (
+        {isFormOpened && !isError && (
           <NewCommentForm
             selectedPost={selectedPost}
             setComments={setComments}
             comments={comments}
             setIsError={setIsError}
+            setIsAddDeleteError={setIsAddDeleteError}
           />
         )}
       </div>

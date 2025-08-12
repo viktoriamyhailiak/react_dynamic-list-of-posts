@@ -9,6 +9,7 @@ type Props = {
   setComments: React.Dispatch<React.SetStateAction<Comment[] | null>>;
   comments: Comment[] | null;
   setIsError: React.Dispatch<React.SetStateAction<boolean>>;
+  setIsAddDeleteError: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
 export const NewCommentForm: React.FC<Props> = ({
@@ -16,6 +17,7 @@ export const NewCommentForm: React.FC<Props> = ({
   setComments,
   comments,
   setIsError,
+  setIsAddDeleteError,
 }) => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [name, setName] = useState<string>('');
@@ -63,7 +65,10 @@ export const NewCommentForm: React.FC<Props> = ({
 
           setBody('');
         })
-        .catch(() => setIsError(true))
+        .catch(() => {
+          setIsError(true);
+          setIsAddDeleteError(true);
+        })
         .finally(() => setIsLoading(false));
     }
   }
